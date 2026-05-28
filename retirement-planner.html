@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh;font-size:15px}
+a{color:inherit}
+
+/* ── HEADER ── */
+.header{background:#0f766e;color:#fff;padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.header h1{font-size:1.4rem;font-weight:600;letter-spacing:-0.02em}
+.header p{font-size:0.8rem;opacity:0.8;margin-top:2px}
+.header-actions{display:flex;gap:8px;flex-shrink:0}
+.btn-ghost{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.15s}
+.btn-ghost:hover{background:rgba(255,255,255,0.25)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:370px 1fr;gap:1.25rem;padding:1.25rem 1.75rem;max-width:1440px;margin:0 auto;align-items:start}
+
+/* ── INPUTS PANEL ── */
+.inputs-panel{display:flex;flex-direction:column;gap:1rem;position:sticky;top:1rem;max-height:calc(100vh - 4.5rem);overflow-y:auto;padding-right:2px;padding-bottom:1rem}
+.inputs-panel::-webkit-scrollbar{width:3px}
+.inputs-panel::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px}
+
+/* ── CARD ── */
+.card{background:#fff;border-radius:12px;padding:1.1rem 1.2rem;border:1px solid #e2e8f0}
+.section-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:0.9rem}
+
+/* ── INPUT ROWS ── */
+.input-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.input-row:last-child{margin-bottom:0}
+.input-label{display:flex;align-items:center;gap:7px;font-size:0.83rem;color:#475569;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.input-wrap{display:flex;align-items:center;gap:3px}
+.prefix{font-size:0.8rem;color:#94a3b8}
+.input-wrap input[type=text],.input-wrap input[type=number]{width:130px;padding:5px 9px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.83rem;font-family:'DM Sans',sans-serif;color:#0f172a;text-align:right;transition:border-color 0.15s;background:#fafafa}
+.input-wrap input:focus{outline:none;border-color:#0d9488;background:#fff}
+.input-note{font-size:0.7rem;color:#94a3b8;margin-top:6px;line-height:1.4}
+
+/* ── SLIDERS ── */
+.slider-row{margin-bottom:11px}
+.slider-row:last-child{margin-bottom:0}
+.slider-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.slider-name{font-size:0.83rem;color:#475569}
+.slider-val{font-size:0.83rem;font-weight:600;color:#0d9488}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;background:#e2e8f0;border-radius:2px;cursor:pointer;accent-color:#0d9488}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#0d9488;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#0d9488;cursor:pointer;border:none}
+
+/* ── SS OPTIONS ── */
+.ss-list{display:flex;flex-direction:column;gap:7px}
+.ss-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;transition:all 0.15s;user-select:none}
+.ss-opt:hover{background:#f8fafc}
+.ss-opt.active{border-color:#0d9488;background:#f0fdfa}
+.ss-opt input[type=radio]{accent-color:#0d9488;width:14px;height:14px;flex-shrink:0}
+.ss-opt-label{font-size:0.82rem;color:#475569;flex:1}
+.ss-opt.active .ss-opt-label{color:#0f766e;font-weight:500}
+.ss-amt{display:flex;align-items:center;gap:3px}
+.ss-amt span{font-size:0.75rem;color:#94a3b8}
+.ss-amt input{width:80px;padding:3px 7px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.78rem;font-family:'DM Sans',sans-serif;text-align:right;background:#fafafa}
+.ss-amt input:focus{outline:none;border-color:#0d9488}
+
+/* ── RESULTS ── */
+.results{display:flex;flex-direction:column;gap:1.25rem}
+
+/* ── METRIC CARDS ── */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.9rem}
+.metric-card{background:#fff;border-radius:12px;padding:1.1rem 1rem;border:1px solid #e2e8f0;text-align:center}
+.metric-badge{font-size:0.67rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:6px}
+.metric-num{font-family:'DM Serif Display',serif;font-size:1.85rem;line-height:1;color:#0f172a}
+.metric-sub{font-size:0.72rem;color:#94a3b8;margin-top:4px}
+.metric-card.ok .metric-num{color:#0d9488}
+.metric-card.warn .metric-num{color:#d97706}
+.metric-card.bad .metric-num{color:#dc2626}
+
+/* ── ALERT ── */
+.alert{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#991b1b;margin-top:-0.25rem}
+.alert.show{display:block}
+
+/* ── CHART CARDS ── */
+.chart-card{background:#fff;border-radius:12px;padding:1.2rem 1.3rem;border:1px solid #e2e8f0}
+.chart-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px}
+.chart-title{font-size:0.88rem;font-weight:600;color:#0f172a}
+.chart-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:0.75rem}
+.leg{display:flex;align-items:center;gap:5px;font-size:0.75rem;color:#64748b}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.leg-ln{width:16px;height:3px;border-radius:2px;flex-shrink:0}
+
+/* ── SCENARIO TABS ── */
+.tabs{display:flex;gap:3px;background:#f1f5f9;padding:3px;border-radius:8px}
+.tab{padding:4px 11px;border-radius:6px;font-size:0.75rem;font-weight:500;cursor:pointer;color:#64748b;border:none;background:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.tab.on{background:#fff;color:#0d9488;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+
+/* ── TWO-COL CHARTS ── */
+.chart-row{display:grid;grid-template-columns:1.8fr 1fr;gap:1.25rem}
+
+/* ── ALLOCATION LEGEND ── */
+.alloc-legend{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.alloc-leg{display:flex;align-items:center;justify-content:space-between;font-size:0.77rem}
+.alloc-leg-left{display:flex;align-items:center;gap:6px;color:#475569}
+.alloc-leg-val{font-weight:500;color:#0f172a}
+
+/* ── SS LEGEND ── */
+.ss-chart-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:0.75rem}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1080px){
+  .layout{grid-template-columns:1fr}
+  .inputs-panel{position:static;max-height:none}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .chart-row{grid-template-columns:1fr}
+  .tabs .tab:nth-child(4){display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Retirement Planner</h1>
+    <p>Adjust your assets, timeline and social security benefits to model your financial future</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-ghost" onclick="resetDefaults()">Reset</button>
+    <button class="btn-ghost" onclick="window.print()">Print / PDF</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ══════════ INPUTS ══════════ -->
+  <div class="inputs-panel">
+
+    <!-- Assets -->
+    <div class="card">
+      <div class="section-label">Your Assets Today</div>
+
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#0d9488"></span>Stocks (taxable)</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="stocks" value="2,000,000" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#7c3aed"></span>401K / IRA</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="k401" value="500,000" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#2563eb"></span>HSA</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="hsa" value="50,000" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#0ea5e9"></span>Cash</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="cash" value="200,000" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#d97706"></span>House Equity</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="house" value="800,000" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#059669"></span>Annual Dividends</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="dividends" value="30,000" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-label"><span class="dot" style="background:#be185d"></span>Other Passive Income</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="passive" value="0" oninput="onInput()" onblur="fmtInput(this)"></div>
+      </div>
+      <p class="input-note">House equity appreciated at 3%/yr — not counted in liquid portfolio unless you plan to sell.</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card">
+      <div class="section-label">Timeline &amp; Growth</div>
+
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-name">Current Age</span><span class="slider-val" id="d-curAge">46</span></div>
+        <input type="range" id="curAge" min="20" max="75" value="46" step="1" oninput="sd(this,'d-curAge','')">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-name">Target Retirement Age</span><span class="slider-val" id="d-retAge">55</span></div>
+        <input type="range" id="retAge" min="40" max="80" value="55" step="1" oninput="sd(this,'d-retAge','')">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-name">Life Expectancy</span><span class="slider-val" id="d-lifeExp">90</span></div>
+        <input type="range" id="lifeExp" min="70" max="105" value="90" step="1" oninput="sd(this,'d-lifeExp','')">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-name">Expected Annual Return</span><span class="slider-val" id="d-ret">7.0%</span></div>
+        <input type="range" id="retRate" min="2" max="15" value="7" step="0.5" oninput="sd(this,'d-ret','%',1)">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-name">Inflation Rate</span><span class="slider-val" id="d-inf">3.0%</span></div>
+        <input type="range" id="infRate" min="1" max="8" value="3" step="0.5" oninput="sd(this,'d-inf','%',1)">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top"><span class="slider-name">Annual Contribution (pre-retirement)</span><span class="slider-val" id="d-contrib">$100K</span></div>
+        <input type="range" id="contrib" min="0" max="500" value="100" step="5" oninput="updateContrib()">
+      </div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="card">
+      <div class="section-label">Retirement Annual Spending</div>
+      <div class="input-row" style="margin-bottom:0">
+        <div class="input-label">Annual Expenses</div>
+        <div class="input-wrap"><span class="prefix">$</span><input type="text" id="expenses" value="150,000" oninput="onInput()" onblur="fmtInput(this)" style="width:140px"></div>
+      </div>
+      <p class="input-note">In today's dollars — automatically inflation-adjusted each year in retirement.</p>
+    </div>
+
+    <!-- Social Security -->
+    <div class="card">
+      <div class="section-label">Social Security Claiming Age</div>
+      <div class="ss-list" id="ssList">
+        <label class="ss-opt" id="ssOpt0">
+          <input type="radio" name="ss" value="0" onchange="selectSS(this)">
+          <span class="ss-opt-label">Not claiming Social Security</span>
+        </label>
+        <label class="ss-opt" id="ssOpt62">
+          <input type="radio" name="ss" value="62" onchange="selectSS(this)">
+          <span class="ss-opt-label">Claim at 62 — early (reduced)</span>
+          <div class="ss-amt"><span>$</span><input type="number" id="ss62" value="2000" min="0" onclick="checkSS('62')" oninput="onInput()"><span>/mo</span></div>
+        </label>
+        <label class="ss-opt active" id="ssOpt67">
+          <input type="radio" name="ss" value="67" checked onchange="selectSS(this)">
+          <span class="ss-opt-label">Claim at 67 — full retirement age</span>
+          <div class="ss-amt"><span>$</span><input type="number" id="ss67" value="2800" min="0" onclick="checkSS('67')" oninput="onInput()"><span>/mo</span></div>
+        </label>
+        <label class="ss-opt" id="ssOpt70">
+          <input type="radio" name="ss" value="70" onchange="selectSS(this)">
+          <span class="ss-opt-label">Claim at 70 — maximum benefit</span>
+          <div class="ss-amt"><span>$</span><input type="number" id="ss70" value="3500" min="0" onclick="checkSS('70')" oninput="onInput()"><span>/mo</span></div>
+        </label>
+      </div>
+      <p class="input-note">Enter your estimated monthly benefit from SSA.gov. SS benefits are adjusted annually with ~2.5% COLA.</p>
+    </div>
+
+  </div>
+
+  <!-- ══════════ RESULTS ══════════ -->
+  <div class="results">
+
+    <!-- Metric cards -->
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-badge">Portfolio Today</div>
+        <div class="metric-num" id="m-today">—</div>
+        <div class="metric-sub">liquid assets</div>
+      </div>
+      <div class="metric-card ok" id="mc-retire">
+        <div class="metric-badge">At Retirement</div>
+        <div class="metric-num" id="m-retire">—</div>
+        <div class="metric-sub" id="ms-retire">age 55</div>
+      </div>
+      <div class="metric-card" id="mc-monthly">
+        <div class="metric-badge">Monthly Withdrawal</div>
+        <div class="metric-num" id="m-monthly">—</div>
+        <div class="metric-sub" id="ms-monthly">from portfolio</div>
+      </div>
+      <div class="metric-card ok" id="mc-runway">
+        <div class="metric-badge">Portfolio Runway</div>
+        <div class="metric-num" id="m-runway">—</div>
+        <div class="metric-sub" id="ms-runway">years funded</div>
+      </div>
+    </div>
+
+    <div class="alert" id="alertBox">
+      <strong>⚠ Warning:</strong> Portfolio runs out at age <span id="alertAge"></span> under your current settings.
+      Consider reducing annual expenses, delaying retirement, or claiming Social Security earlier.
+    </div>
+
+    <!-- Portfolio trajectory -->
+    <div class="chart-card">
+      <div class="chart-top">
+        <div class="chart-title">Portfolio Trajectory Over Time</div>
+        <div class="tabs" id="scenTabs">
+          <button class="tab" onclick="setScene('cons')" id="t-cons">Conservative</button>
+          <button class="tab on" onclick="setScene('base')" id="t-base">Base</button>
+          <button class="tab" onclick="setScene('opt')" id="t-opt">Optimistic</button>
+          <button class="tab" onclick="setScene('all')" id="t-all">All 3</button>
+        </div>
+      </div>
+      <div class="chart-legend" id="portLegend"></div>
+      <div style="position:relative;height:320px">
+        <canvas id="portChart" role="img" aria-label="Portfolio value over time from current age to life expectancy">Portfolio trajectory chart.</canvas>
+      </div>
+    </div>
+
+    <!-- Income + allocation row -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title" style="margin-bottom:0.75rem">Annual Retirement Income Sources</div>
+        <div class="chart-legend" id="incLegend">
+          <span class="leg"><span class="leg-sq" style="background:#0d9488"></span>Portfolio draw</span>
+          <span class="leg"><span class="leg-sq" style="background:#059669"></span>Dividends</span>
+          <span class="leg"><span class="leg-sq" style="background:#be185d"></span>Passive income</span>
+          <span class="leg"><span class="leg-sq" style="background:#2563eb"></span>Social Security</span>
+        </div>
+        <div style="position:relative;height:240px">
+          <canvas id="incChart" role="img" aria-label="Stacked bar chart of annual income sources in retirement">Income sources chart.</canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title" style="margin-bottom:0.75rem">Asset Allocation Today</div>
+        <div style="position:relative;height:170px">
+          <canvas id="allocChart" role="img" aria-label="Donut chart showing current asset allocation">Asset allocation chart.</canvas>
+        </div>
+        <div class="alloc-legend" id="allocLegend"></div>
+      </div>
+    </div>
+
+    <!-- SS comparison -->
+    <div class="chart-card">
+      <div class="chart-top">
+        <div class="chart-title">Social Security — Claiming Age Impact on Portfolio</div>
+      </div>
+      <div class="chart-legend">
+        <span class="leg"><span class="leg-ln" style="background:#94a3b8"></span>No SS</span>
+        <span class="leg"><span class="leg-ln" style="background:#f59e0b"></span>Claim at 62</span>
+        <span class="leg"><span class="leg-ln" style="background:#0d9488"></span>Claim at 67</span>
+        <span class="leg"><span class="leg-ln" style="background:#7c3aed"></span>Claim at 70</span>
+      </div>
+      <div style="position:relative;height:260px">
+        <canvas id="ssChart" role="img" aria-label="Line chart comparing portfolio value under different Social Security claiming ages">SS comparison chart.</canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── helpers ── */
+function pv(id){return parseFloat(document.getElementById(id).value.replace(/,/g,''))||0}
+function fmt(n){
+  if(n===null||isNaN(n))return'—';
+  const abs=Math.abs(n);
+  const sign=n<0?'-':'';
+  if(abs>=1e9)return sign+'$'+(abs/1e9).toFixed(2)+'B';
+  if(abs>=1e6)return sign+'$'+(abs/1e6).toFixed(2)+'M';
+  if(abs>=1e3)return sign+'$'+(abs/1e3).toFixed(0)+'K';
+  return sign+'$'+Math.round(abs).toLocaleString();
+}
+function fmtInput(el){
+  const v=parseFloat(el.value.replace(/,/g,''));
+  if(!isNaN(v))el.value=v.toLocaleString();
+}
+function sd(el,id,sfx,dec){
+  document.getElementById(id).textContent=parseFloat(el.value).toFixed(dec||0)+sfx;
+  onInput();
+}
+function updateContrib(){
+  const v=+document.getElementById('contrib').value;
+  document.getElementById('d-contrib').textContent=v===0?'$0':`$${v}K`;
+  onInput();
+}
+function checkSS(age){
+  const radio=document.querySelector(`[name=ss][value="${age}"]`);
+  radio.checked=true;
+  selectSS(radio);
+}
+function selectSS(radio){
+  document.querySelectorAll('.ss-opt').forEach(o=>o.classList.remove('active'));
+  radio.closest('.ss-opt').classList.add('active');
+  onInput();
+}
+
+/* ── state ── */
+let scene='base';
+function setScene(s){
+  scene=s;
+  ['cons','base','opt','all'].forEach(k=>{
+    document.getElementById('t-'+k).classList.toggle('on',k===s);
+  });
+  render();
+}
+
+/* ── core model ── */
+function project(rr, ssOverride){
+  const curAge=+document.getElementById('curAge').value;
+  const retAge=+document.getElementById('retAge').value;
+  const lifeExp=+document.getElementById('lifeExp').value;
+  const inf=+document.getElementById('infRate').value/100;
+  const contrib=+document.getElementById('contrib').value*1000;
+  const expenses=pv('expenses');
+  const divs=pv('dividends');
+  const pass=pv('passive');
+  const ssAge= ssOverride!==undefined ? ssOverride : +document.querySelector('[name=ss]:checked').value;
+  const ssMo={62:+document.getElementById('ss62').value,67:+document.getElementById('ss67').value,70:+document.getElementById('ss70').value};
+
+  let port=pv('stocks')+pv('k401')+pv('hsa')+pv('cash');
+  const ages=[],vals=[];
+  let depAge=null;
+
+  for(let age=curAge;age<=lifeExp;age++){
+    ages.push(age);
+    if(age<retAge){
+      port=port*(1+rr)+contrib;
+    } else {
+      const yr=age-retAge;
+      const iF=Math.pow(1+inf,yr);
+      const inflExp=expenses*iF;
+      const dInc=divs*iF;
+      const pInc=pass*iF;
+      let ssInc=0;
+      if(ssAge>0&&age>=ssAge){
+        const ssYr=age-ssAge;
+        ssInc=(ssMo[ssAge]||0)*12*Math.pow(1.025,ssYr);
+      }
+      const draw=Math.max(0,inflExp-dInc-pInc-ssInc);
+      port=port*(1+rr)-draw;
+      if(port<=0&&depAge===null){depAge=age;port=0;}
+    }
+    vals.push(Math.round(Math.max(0,port)));
+  }
+  return{ages,vals,depAge};
+}
+
+/* ── charts ── */
+let portC,incC,allocC,ssC;
+
+const retireLinePl={
+  id:'retireLine',
+  afterDatasetsDraw(chart){
+    const{ctx,scales:{x,y}}=chart;
+    const retAge=+document.getElementById('retAge').value;
+    const lifeExp=+document.getElementById('lifeExp').value;
+    const curAge=+document.getElementById('curAge').value;
+    const idx=retAge-curAge;
+    if(idx<0||!chart.data.labels||chart.data.labels.length===0)return;
+    const xp=x.getPixelForValue(idx);
+    ctx.save();
+    ctx.strokeStyle='rgba(100,116,139,0.35)';
+    ctx.lineWidth=1.5;
+    ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(xp,y.top);ctx.lineTo(xp,y.bottom);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#94a3b8';
+    ctx.font='10px DM Sans,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('retire',xp,y.top-5);
+    ctx.restore();
+  }
+};
+
+function initCharts(){
+  portC=new Chart(document.getElementById('portChart').getContext('2d'),{
+    type:'line',
+    data:{labels:[],datasets:[]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{size:11},maxTicksLimit:15},grid:{color:'#f1f5f9'},title:{display:true,text:'Age',color:'#94a3b8',font:{size:11}}},
+        y:{ticks:{color:'#94a3b8',font:{size:11},callback:v=>fmt(v)},grid:{color:'#f1f5f9'},title:{display:true,text:'Portfolio Value',color:'#94a3b8',font:{size:11}}}
+      }
+    },
+    plugins:[retireLinePl]
+  });
+
+  incC=new Chart(document.getElementById('incChart').getContext('2d'),{
+    type:'bar',
+    data:{labels:[],datasets:[]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+      scales:{
+        x:{stacked:true,ticks:{color:'#94a3b8',font:{size:11}},grid:{display:false}},
+        y:{stacked:true,ticks:{color:'#94a3b8',font:{size:11},callback:v=>fmt(v)},grid:{color:'#f1f5f9'}}
+      }
+    }
+  });
+
+  allocC=new Chart(document.getElementById('allocChart').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:[],datasets:[]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>{
+          const total=c.dataset.data.reduce((a,b)=>a+b,0);
+          return c.label+': '+fmt(c.raw)+' ('+Math.round(c.raw*100/total)+'%)';
+        }}}
+      }
+    }
+  });
+
+  ssC=new Chart(document.getElementById('ssChart').getContext('2d'),{
+    type:'line',
+    data:{labels:[],datasets:[]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{size:11},maxTicksLimit:15},grid:{color:'#f1f5f9'},title:{display:true,text:'Age',color:'#94a3b8',font:{size:11}}},
+        y:{ticks:{color:'#94a3b8',font:{size:11},callback:v=>fmt(v)},grid:{color:'#f1f5f9'}}
+      }
+    },
+    plugins:[retireLinePl]
+  });
+}
+
+/* ── render ── */
+function render(){
+  const baseRR=+document.getElementById('retRate').value/100;
+  const consRR=Math.max(0.02,baseRR-0.02);
+  const optRR=baseRR+0.02;
+  const curAge=+document.getElementById('curAge').value;
+  const retAge=+document.getElementById('retAge').value;
+  const lifeExp=+document.getElementById('lifeExp').value;
+  const inf=+document.getElementById('infRate').value/100;
+  const expenses=pv('expenses');
+  const divs=pv('dividends');
+  const pass=pv('passive');
+  const ssAge=+document.querySelector('[name=ss]:checked').value;
+
+  const baseP=project(baseRR);
+  const consP=project(consRR);
+  const optP=project(optRR);
+  const labels=baseP.ages.map(String);
+
+  /* scenario tab labels */
+  document.getElementById('t-cons').textContent=`Conservative (${(consRR*100).toFixed(1)}%)`;
+  document.getElementById('t-base').textContent=`Base (${(baseRR*100).toFixed(1)}%)`;
+  document.getElementById('t-opt').textContent=`Optimistic (${(optRR*100).toFixed(1)}%)`;
+
+  /* metrics */
+  const liquid=pv('stocks')+pv('k401')+pv('hsa')+pv('cash');
+  document.getElementById('m-today').textContent=fmt(liquid);
+  const retIdx=baseP.ages.indexOf(retAge);
+  const retVal=retIdx>=0?baseP.vals[retIdx]:baseP.vals[0];
+  document.getElementById('m-retire').textContent=fmt(retVal);
+  document.getElementById('ms-retire').textContent='age '+retAge;
+
+  /* monthly withdrawal at retirement start */
+  const yr0Inf=1;
+  const dInc=divs*yr0Inf, pInc=pass*yr0Inf;
+  let ssInc0=0;
+  if(ssAge>0&&retAge>=ssAge){const sm={62:+document.getElementById('ss62').value,67:+document.getElementById('ss67').value,70:+document.getElementById('ss70').value};ssInc0=(sm[ssAge]||0)*12;}
+  const monthlyDraw=Math.max(0,expenses-dInc-pInc-ssInc0)/12;
+  document.getElementById('m-monthly').textContent=fmt(monthlyDraw);
+  document.getElementById('ms-monthly').textContent='from portfolio/mo';
+
+  /* runway */
+  const mc=document.getElementById('mc-runway');
+  if(baseP.depAge){
+    const ry=baseP.depAge-retAge;
+    document.getElementById('m-runway').textContent=ry+'yrs';
+    document.getElementById('ms-runway').textContent='runs out at '+baseP.depAge;
+    mc.className='metric-card bad';
+    document.getElementById('alertBox').classList.add('show');
+    document.getElementById('alertAge').textContent=baseP.depAge;
+  } else {
+    document.getElementById('m-runway').textContent=(lifeExp-retAge)+'+';
+    document.getElementById('ms-runway').textContent='funded through '+lifeExp;
+    mc.className='metric-card ok';
+    document.getElementById('alertBox').classList.remove('show');
+  }
+
+  /* portfolio chart */
+  let datasets=[];
+  if(scene==='all'){
+    datasets=[
+      {label:`Conservative (${(consRR*100).toFixed(1)}%)`,data:consP.vals,borderColor:'#f59e0b',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3,borderDash:[5,4]},
+      {label:`Base (${(baseRR*100).toFixed(1)}%)`,data:baseP.vals,borderColor:'#0d9488',backgroundColor:'rgba(13,148,136,0.07)',fill:true,borderWidth:2.5,pointRadius:0,tension:0.3},
+      {label:`Optimistic (${(optRR*100).toFixed(1)}%)`,data:optP.vals,borderColor:'#7c3aed',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.3}
+    ];
+    document.getElementById('portLegend').innerHTML=`
+      <span class="leg"><span class="leg-ln" style="background:#f59e0b"></span>Conservative</span>
+      <span class="leg"><span class="leg-ln" style="background:#0d9488"></span>Base</span>
+      <span class="leg"><span class="leg-ln" style="background:#7c3aed"></span>Optimistic</span>`;
+  } else {
+    const map={cons:{p:consP,c:'#f59e0b',lb:`Conservative (${(consRR*100).toFixed(1)}%)`},base:{p:baseP,c:'#0d9488',lb:`Base (${(baseRR*100).toFixed(1)}%)`},opt:{p:optP,c:'#7c3aed',lb:`Optimistic (${(optRR*100).toFixed(1)}%)`}};
+    const{p,c,lb}=map[scene];
+    datasets=[{label:lb,data:p.vals,borderColor:c,backgroundColor:c+'14',fill:true,borderWidth:2.5,pointRadius:0,tension:0.3}];
+    document.getElementById('portLegend').innerHTML='';
+  }
+  portC.data.labels=labels;
+  portC.data.datasets=datasets;
+  portC.update('none');
+
+  /* income sources bar (every 5 years in retirement) */
+  const iAges=[],iDraw=[],iDivs=[],iPass=[],iSS=[];
+  const ssMo={62:+document.getElementById('ss62').value,67:+document.getElementById('ss67').value,70:+document.getElementById('ss70').value};
+  for(let age=retAge;age<=lifeExp;age+=5){
+    const yr=age-retAge;
+    const iF=Math.pow(1+inf,yr);
+    const dv=divs*iF, ps=pass*iF;
+    let ss=0;
+    if(ssAge>0&&age>=ssAge){const ssYr=age-ssAge;ss=(ssMo[ssAge]||0)*12*Math.pow(1.025,ssYr);}
+    const draw=Math.max(0,expenses*iF-dv-ps-ss);
+    iAges.push('Age '+age);iDraw.push(Math.round(draw));iDivs.push(Math.round(dv));iPass.push(Math.round(ps));iSS.push(Math.round(ss));
+  }
+  incC.data.labels=iAges;
+  incC.data.datasets=[
+    {label:'Portfolio Draw',data:iDraw,backgroundColor:'#0d9488',stack:'a'},
+    {label:'Dividends',data:iDivs,backgroundColor:'#059669',stack:'a'},
+    {label:'Passive Income',data:iPass,backgroundColor:'#be185d',stack:'a'},
+    {label:'Social Security',data:iSS,backgroundColor:'#2563eb',stack:'a'}
+  ];
+  incC.update('none');
+
+  /* allocation donut */
+  const allocRaw=[
+    {l:'Stocks',v:pv('stocks'),c:'#0d9488'},
+    {l:'401K / IRA',v:pv('k401'),c:'#7c3aed'},
+    {l:'HSA',v:pv('hsa'),c:'#2563eb'},
+    {l:'Cash',v:pv('cash'),c:'#0ea5e9'},
+    {l:'House Equity',v:pv('house'),c:'#d97706'},
+    {l:'Dividends (annual)',v:pv('dividends'),c:'#059669'},
+    {l:'Passive (annual)',v:pv('passive'),c:'#be185d'}
+  ].filter(x=>x.v>0);
+  const allocTotal=allocRaw.reduce((s,x)=>s+x.v,0);
+  allocC.data.labels=allocRaw.map(x=>x.l);
+  allocC.data.datasets=[{data:allocRaw.map(x=>x.v),backgroundColor:allocRaw.map(x=>x.c),borderWidth:0}];
+  allocC.update('none');
+  document.getElementById('allocLegend').innerHTML=allocRaw.map(x=>`
+    <div class="alloc-leg">
+      <span class="alloc-leg-left"><span class="dot" style="background:${x.c}"></span>${x.l}</span>
+      <span class="alloc-leg-val">${fmt(x.v)} <span style="color:#94a3b8;font-weight:400">(${Math.round(x.v*100/allocTotal)}%)</span></span>
+    </div>`).join('');
+
+  /* SS comparison lines */
+  const ssNoneP=project(baseRR,0);
+  const ss62P=project(baseRR,62);
+  const ss67P=project(baseRR,67);
+  const ss70P=project(baseRR,70);
+  ssC.data.labels=labels;
+  ssC.data.datasets=[
+    {label:'No SS',data:ssNoneP.vals,borderColor:'#94a3b8',borderWidth:2,pointRadius:0,tension:0.3,borderDash:[4,4]},
+    {label:'Claim at 62',data:ss62P.vals,borderColor:'#f59e0b',borderWidth:2,pointRadius:0,tension:0.3},
+    {label:'Claim at 67',data:ss67P.vals,borderColor:'#0d9488',borderWidth:2,pointRadius:0,tension:0.3},
+    {label:'Claim at 70',data:ss70P.vals,borderColor:'#7c3aed',borderWidth:2,pointRadius:0,tension:0.3}
+  ];
+  ssC.update('none');
+
+  saveLocal();
+}
+
+/* ── debounce ── */
+let dTimer;
+function onInput(){clearTimeout(dTimer);dTimer=setTimeout(render,60);}
+
+/* ── localStorage ── */
+const LS_KEY='retPlanner_v2';
+const FIELDS=['stocks','k401','hsa','cash','house','dividends','passive','expenses','ss62','ss67','ss70'];
+const SLIDERS=['curAge','retAge','lifeExp','retRate','infRate','contrib'];
+function saveLocal(){
+  try{
+    const d={};
+    FIELDS.forEach(f=>d[f]=document.getElementById(f).value);
+    SLIDERS.forEach(s=>d[s]=document.getElementById(s).value);
+    d.ssAge=document.querySelector('[name=ss]:checked').value;
+    localStorage.setItem(LS_KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    FIELDS.forEach(f=>{if(d[f]!==undefined)document.getElementById(f).value=d[f];});
+    SLIDERS.forEach(s=>{
+      if(d[s]!==undefined){
+        const el=document.getElementById(s);
+        el.value=d[s];
+      }
+    });
+    /* sync slider displays */
+    document.getElementById('d-curAge').textContent=document.getElementById('curAge').value;
+    document.getElementById('d-retAge').textContent=document.getElementById('retAge').value;
+    document.getElementById('d-lifeExp').textContent=document.getElementById('lifeExp').value;
+    document.getElementById('d-ret').textContent=parseFloat(document.getElementById('retRate').value).toFixed(1)+'%';
+    document.getElementById('d-inf').textContent=parseFloat(document.getElementById('infRate').value).toFixed(1)+'%';
+    const cv=+document.getElementById('contrib').value;
+    document.getElementById('d-contrib').textContent=cv===0?'$0':`$${cv}K`;
+    /* ss */
+    if(d.ssAge!==undefined){
+      const r=document.querySelector(`[name=ss][value="${d.ssAge}"]`);
+      if(r){r.checked=true;selectSS(r);}
+    }
+    return true;
+  }catch(e){return false;}
+}
+function resetDefaults(){
+  localStorage.removeItem(LS_KEY);
+  location.reload();
+}
+
+/* ── boot ── */
+initCharts();
+if(!loadLocal()){
+  /* format default text inputs */
+  ['stocks','k401','hsa','cash','house','dividends','passive','expenses'].forEach(id=>fmtInput(document.getElementById(id)));
+}
+render();
+</script>
+</body>
+</html>
